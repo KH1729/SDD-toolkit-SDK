@@ -39,12 +39,16 @@ WAITING_FOR_HUMAN_IMPLEMENTATION_APPROVAL
     ↓ (approve)          ↘ (rework)
 IMPLEMENTATION_COMPLETE    → back to IMPLEMENTATION_IN_PROGRESS
     ↓
-VALIDATION_COMPLETE
+VALIDATION_IN_PROGRESS
+    ↓
+VALIDATION_REVIEW_REQUIRED
     ↓
 WAITING_FOR_HUMAN_FINAL_DECISION
     ↓ (approve)          ↘ (rework → any prior state)
 DONE
 ```
+Note: At any point in the flow, an escalation condition may trigger a transition to `ESCALATED`. 
+After resolution by the human developer, execution returns to the prior state.
 
 ## State Definitions
 
@@ -67,8 +71,10 @@ DONE
 | `IMPLEMENTATION_IN_PROGRESS` | Workers are executing tasks | → `WAITING_FOR_HUMAN_IMPLEMENTATION_APPROVAL` |
 | `WAITING_FOR_HUMAN_IMPLEMENTATION_APPROVAL` | Paused. Human reviews implementation. | → `IMPLEMENTATION_COMPLETE` (approve) / → `IMPLEMENTATION_IN_PROGRESS` (rework) |
 | `IMPLEMENTATION_COMPLETE` | All tasks done and approved | → `VALIDATION_COMPLETE` |
-| `VALIDATION_COMPLETE` | Validators have produced findings | → `WAITING_FOR_HUMAN_FINAL_DECISION` |
+| `VALIDATION_IN_PROGRESS` | Validation agent is actively evaluating implementation | → `VALIDATION_REVIEW_REQUIRED` |
+| `VALIDATION_REVIEW_REQUIRED` | Validation findings are ready for review | → `WAITING_FOR_HUMAN_FINAL_DECISION` |
 | `WAITING_FOR_HUMAN_FINAL_DECISION` | Paused. Human makes final call. | → `DONE` (approve) / → any prior state (rework) |
+| `ESCALATED` | Execution paused due to escalation condition requiring human decision | → return to previous state after resolution |
 | `DONE` | Feature complete. All artifacts versioned. | Terminal state. |
 
 ## Rework Transitions
@@ -80,3 +86,4 @@ Rework can target any previous state. When rework rolls back past an approved ph
 - Only one state is active per feature at any time.
 - `WAITING_FOR_HUMAN_*` states can only be exited by a human action (approve or rework).
 - No agent may transition out of a waiting state programmatically in manual mode.
+- Any state may transition to `ESCALATED` if an escalation condition is triggered.
