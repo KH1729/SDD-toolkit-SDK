@@ -4,8 +4,13 @@ toolkit:
   description: "Lean, human-governed, token-aware, multi-agent Spec-Driven Development system"
 
 mode:
-  default: manual          # manual | semi-auto | auto
-  approval_required: true  # human approval required at every phase gate
+  default: manual
+  available:
+    - manual
+    - guided
+    - delegated
+  approval_required_by_default: true
+  phase_gate_override_allowed: true   # only by explicit developer instruction
 
 flow:
   phases:
@@ -16,42 +21,62 @@ flow:
     - tasks
     - implementation
     - validation
-  allow_skip: false
-  allow_reorder: false
+  skip_policy: developer_override_only
+  reorder_policy: developer_override_only
+  reopen_previous_phase: true
 
 execution:
-  strategy: sequential     # sequential | parallel-tasks
-  token_budget: null       # null = no hard limit; set integer for cap
-  summary_first: true      # agents read summaries before full artifacts
-  scoped_context: true     # load only relevant context per phase
-  diff_validation: true    # prefer diff-based checks over full re-reads
-  compressed_summaries_on_low_budget: true
+  strategy: sequential
+  parallelize_only_when_beneficial: true
+  prefer_role_consolidation: true
+  token_budget:
+    hard_cap: null
+    warning_threshold: null
+  context_policy:
+    memory_first: true
+    summaries_first: true
+    scoped_raw_loading: true
+    diff_validation: true
+    compressed_summaries_on_low_budget: true
 
 resources:
   workers:
     min: 1
     max: 5
     default: 1
-    scaling: dynamic       # dynamic | fixed
+    scaling: dynamic
+    drivers:
+      - complexity
+      - token_budget
+      - model_capability
+      - coordination_cost
   validators:
     min: 1
     max: 3
     default: 1
     scaling: dynamic
+    drivers:
+      - risk
+      - complexity
+      - token_budget
 
 artifacts:
   versioning: true
   registry_path: registry/specs
   auto_snapshot_on_approval: true
+  registry_contains_approved_only: true
+  drafts_live_in_workspace_only: true
 
 memory:
   enabled: true
   state_path: memory/feature-state
   summaries_path: memory/summaries
   handoffs_path: memory/handoffs
+  decisions_path: memory/decisions
 
 workspace:
   base_path: workspace
+  drafts_are_non_canonical: true
   structure:
-    current: true          # maintain current/ with latest drafts
-    implementation: true   # maintain implementation/ for task tracking and outputs
+    current: true
+    implementation: true

@@ -8,14 +8,14 @@ SDD Toolkit enforces a disciplined development flow where every feature moves th
 
 **Idea → Spec → Design → Plan → Tasks → Implementation → Validation**
 
-Each phase produces a versioned artifact, a summary, and a handoff — then pauses for human approval before advancing.
+Each phase produces a draft artifact, a summary, and a handoff. Only after explicit human approval is the artifact versioned in the registry and the toolkit allowed to move to the next phase.
 
 ## Core Principles
 
 1. **Human approval by default.** No phase transition occurs without explicit developer sign-off. Agents draft, recommend, and validate — they do not self-approve.
-2. **Disciplined flow.** The canonical pipeline is never skipped or reordered.
+2. **Disciplined flow.** The toolkit follows a disciplined default pipeline. Phases are not skipped, reordered, or advanced unless the developer explicitly approves or instructs it.
 3. **Token-aware execution.** Summaries first, scoped context loading, structured handoffs, diff-based validation, and dynamic scaling only when beneficial.
-4. **Versioned artifacts.** Every approved artifact is snapshotted in the registry with a version number.
+4. **Versioned artifacts.** Only approved artifacts are snapshotted in the registry with a version number. Drafts remain in the workspace and are never treated as canonical.
 5. **Shared execution memory.** Agents read from a common memory area — phase state, summaries, handoffs, and validation findings — instead of re-reading raw artifacts.
 
 ## Agent Model
@@ -36,7 +36,7 @@ Each phase produces a versioned artifact, a summary, and a handoff — then paus
 | **Worker Agent(s)** | Implement assigned tasks within scoped boundaries |
 | **Validation Agent(s)** | Review artifacts and implementation against spec and rules |
 
-Worker and Validation agent counts scale dynamically based on complexity, token budget, and model capability.
+The toolkit activates only the minimum set of roles needed for the current phase. Worker and validation capacity may scale based on complexity, token budget, and model capability, but role consolidation is preferred when it keeps the system lean.
 
 ## Folder Structure
 
@@ -54,7 +54,7 @@ sdd-toolkit/
 
 ### Key Directories
 
-- **memory/** — Shared state that every agent can read. Contains feature state JSON, phase summaries, and handoff documents. Avoids redundant context loading.
+- **memory/** — Agents consult shared memory first — phase state, summaries, handoffs, prior decisions, and validation findings — and only load raw artifacts or code when needed and within scope.
 - **registry/** — Immutable versioned snapshots of approved artifacts. Once a phase is approved, its artifact is stored here (e.g., `registry/specs/my-feature/spec/v1.md`).
 - **workspace/** — Active working area. Contains the current draft of each artifact and implementation outputs (task board, worker assignments, code).
 
