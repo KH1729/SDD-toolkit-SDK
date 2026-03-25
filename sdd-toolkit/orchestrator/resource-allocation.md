@@ -15,7 +15,30 @@ Maximize useful work while minimizing token use. Every worker and validator inst
 | **Token budget** | Hard ceiling on tokens for this feature (if set) |
 | **Execution mode** | Manual, semi-auto, or auto |
 
+## Task Independence Requirement
+
+Parallel execution is allowed only when tasks are sufficiently independent.
+
+Tasks are not independent if they:
+- Modify the same files or components
+- Depend on shared intermediate outputs
+- Require the same large body of context to execute correctly
+
+If task independence is unclear, default to sequential execution.
+
+## Diminishing Returns Rule
+
+Adding more workers or validators must provide meaningful benefit.
+
+Do not increase parallelism when coordination overhead, duplicated context, or merge/review cost is likely to outweigh the benefit.
+
+If adding another worker would mostly duplicate context rather than reduce elapsed work, do not add that worker.
+
 ## Scaling Guidelines
+
+Scaling decisions must account for model capability.
+
+If the selected model can reliably handle the relevant context and task load in a single pass, prefer fewer workers to avoid duplicated context and unnecessary token use.
 
 ### Small Feature (1-2 tasks, low complexity)
 - Workers: **1**
@@ -35,15 +58,26 @@ Maximize useful work while minimizing token use. Every worker and validator inst
 - Strategy: Parallel execution with coordination checkpoints
 - Summary compression: Normal (compressed if budget is tight)
 
-## Low-Budget Rules
+## Validator Allocation Strategy
 
-When the token budget is constrained:
+When multiple validators are used, validation must be split intentionally.
+
+Preferred split options:
+- By concern (for example: functional correctness, performance, security)
+- By task group or artifact boundary
+
+Avoid duplicate validation of the same artifact unless explicit redundancy is required.
+
+## Low-Budget Rules (Priority Order)
+
+When the token budget is constrained, apply the following in order:
 
 1. **Sequential execution only.** No parallel workers. This eliminates duplicated context.
-2. **Compressed summaries.** Summaries are shortened to essential facts only.
-3. **Minimal validators.** One validator regardless of feature size.
-4. **Scoped validation.** Validate critical paths only, not exhaustive coverage.
-5. **Single-pass preference.** Aim to get each phase right on the first try to avoid rework token cost.
+2. **Minimal workers.** Use one worker unless a second worker is clearly justified even under budget pressure.
+3. **Minimal validators.** Use one validator regardless of feature size unless the developer explicitly approves more.
+4. **Compressed summaries.** Summaries are shortened to essential facts only.
+5. **Scoped validation.** Validate critical paths only, not exhaustive coverage.
+6. **Single-pass preference.** Aim to get each phase right on the first try to avoid rework token cost.
 
 ## Allocation Decision Matrix
 
@@ -55,6 +89,36 @@ When the token budget is constrained:
 | Large | Normal | 3-5 | 2-3 | Parallel + checkpoints |
 | Large | Low | 2 | 1 | Sequential + compressed |
 
+## Dynamic Reallocation
+
+If a phase fails validation, requires major rework, or shows coordination overhead, the allocation must be reassessed before retrying.
+
+Reallocation guidelines:
+- Reduce parallelism if the failure was caused by coordination or duplicated context
+- Increase validation depth if major issues were missed
+- Return to minimal allocation when the benefit of parallel execution is no longer clear
+
+## Hard Limits
+
+Resource allocation must respect the limits defined in `toolkit-config.yaml`.
+
+Rules:
+- Worker count must never exceed configured maximums
+- Validator count must never exceed configured maximums
+- If this document conflicts with configuration, configuration takes precedence
+
+## Escalation Conditions
+
+The Master Agent must escalate allocation decisions to the human developer when:
+- Feature complexity and token budget suggest conflicting strategies
+- Task independence is unclear
+- Model capability is unknown or uncertain
+- The recommended allocation would materially affect cost, speed, or validation depth
+
 ## Master Agent Responsibility
 
-The Master Agent proposes the allocation based on these guidelines. The allocation is presented to the human developer for approval during the plan/tasks phase. The developer may override.
+The Master Agent proposes the allocation based on these guidelines, the configured system limits, and the current token budget.
+
+The proposed allocation is presented to the human developer for approval during the plan/tasks phase. The developer may override.
+
+If conditions change during execution (for example: failed validation, rework, budget pressure, or coordination overhead), the Master Agent must reassess the allocation and escalate when required.
