@@ -1,0 +1,67 @@
+{
+  "feature": "bulk-user-import",
+  "created_at": "2026-03-25T09:30:00Z",
+  "last_updated": "2026-03-25T10:30:00Z",
+  "tasks": [
+    {
+      "id": "T-001",
+      "title": "Database Migration",
+      "status": "done",
+      "assigned_to": "worker-1",
+      "started_at": "2026-03-25T09:30:00Z",
+      "completed_at": "2026-03-25T09:40:00Z",
+      "dependencies": [],
+      "notes": "Migration adds nullable import_batch_id column with index."
+    },
+    {
+      "id": "T-002",
+      "title": "CSV Parser",
+      "status": "done",
+      "assigned_to": "worker-2",
+      "started_at": "2026-03-25T09:40:00Z",
+      "completed_at": "2026-03-25T09:55:00Z",
+      "dependencies": ["T-001"],
+      "notes": "Streaming parser using csv-parse. Handles headers and row extraction."
+    },
+    {
+      "id": "T-003",
+      "title": "Structural Validator",
+      "status": "done",
+      "assigned_to": "worker-2",
+      "started_at": "2026-03-25T09:55:00Z",
+      "completed_at": "2026-03-25T10:05:00Z",
+      "dependencies": ["T-002"],
+      "notes": "Validates headers, required fields, row format."
+    },
+    {
+      "id": "T-004",
+      "title": "Business Validator",
+      "status": "done",
+      "assigned_to": "worker-2",
+      "started_at": "2026-03-25T09:55:00Z",
+      "completed_at": "2026-03-25T10:05:00Z",
+      "dependencies": ["T-002"],
+      "notes": "Duplicate email detection (in-file and DB), data type validation."
+    },
+    {
+      "id": "T-005",
+      "title": "Import Executor",
+      "status": "done",
+      "assigned_to": "worker-2",
+      "started_at": "2026-03-25T10:05:00Z",
+      "completed_at": "2026-03-25T10:20:00Z",
+      "dependencies": ["T-003", "T-004"],
+      "notes": "Transaction with batch insert (100/batch). Rollback tested."
+    },
+    {
+      "id": "T-006",
+      "title": "Upload Endpoint and Error Report Generator",
+      "status": "done",
+      "assigned_to": "worker-1",
+      "started_at": "2026-03-25T10:20:00Z",
+      "completed_at": "2026-03-25T10:30:00Z",
+      "dependencies": ["T-005"],
+      "notes": "Multipart upload, auth check, file size limit, error report CSV with temp storage."
+    }
+  ]
+}

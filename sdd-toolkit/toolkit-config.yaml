@@ -1,0 +1,57 @@
+toolkit:
+  name: sdd-toolkit
+  version: "1.0.0"
+  description: "Lean, human-governed, token-aware, multi-agent Spec-Driven Development system"
+
+mode:
+  default: manual          # manual | semi-auto | auto
+  approval_required: true  # human approval required at every phase gate
+
+flow:
+  phases:
+    - idea
+    - spec
+    - design
+    - plan
+    - tasks
+    - implementation
+    - validation
+  allow_skip: false
+  allow_reorder: false
+
+execution:
+  strategy: sequential     # sequential | parallel-tasks
+  token_budget: null       # null = no hard limit; set integer for cap
+  summary_first: true      # agents read summaries before full artifacts
+  scoped_context: true     # load only relevant context per phase
+  diff_validation: true    # prefer diff-based checks over full re-reads
+  compressed_summaries_on_low_budget: true
+
+resources:
+  workers:
+    min: 1
+    max: 5
+    default: 1
+    scaling: dynamic       # dynamic | fixed
+  validators:
+    min: 1
+    max: 3
+    default: 1
+    scaling: dynamic
+
+artifacts:
+  versioning: true
+  registry_path: registry/specs
+  auto_snapshot_on_approval: true
+
+memory:
+  enabled: true
+  state_path: memory/feature-state
+  summaries_path: memory/summaries
+  handoffs_path: memory/handoffs
+
+workspace:
+  base_path: workspace
+  structure:
+    current: true          # maintain current/ with latest drafts
+    implementation: true   # maintain implementation/ for task tracking and outputs

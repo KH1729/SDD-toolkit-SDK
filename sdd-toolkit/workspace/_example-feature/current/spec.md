@@ -1,0 +1,107 @@
+# Spec: Bulk User Import
+
+## Background / Context
+
+The platform currently supports individual user creation only. Administrators managing large organizations need to onboard hundreds or thousands of users at once. Manual entry is impractical. A bulk import via CSV addresses this gap.
+
+## Problem Statement
+
+There is no way to create multiple user accounts in a single operation. Administrators must create users one at a time, which is slow and error-prone for large batches.
+
+## Goals
+
+1. Enable administrators to import users in bulk via CSV file upload.
+2. Validate all data before importing — reject the batch if validation fails.
+3. Provide clear, row-level error reporting so administrators can fix and re-upload.
+4. Ensure data integrity through transactional import with rollback.
+
+## Non-Goals
+
+1. Support for file formats other than CSV.
+2. Async or background processing.
+3. Partial import (importing valid rows while skipping invalid ones).
+4. Real-time progress tracking during import.
+5. Scheduled or recurring import jobs.
+
+## User Stories / Use Cases
+
+### US-1: Admin Imports Users
+**As an** administrator, **I want to** upload a CSV file of user data, **so that** I can onboard multiple users at once without manual entry.
+
+### US-2: Admin Reviews Errors
+**As an** administrator, **I want to** download an error report after a failed import, **so that** I can fix the data issues and re-upload.
+
+### US-3: Admin Trusts Data Integrity
+**As an** administrator, **I want** the import to be all-or-nothing, **so that** I don't end up with a partially imported batch of users.
+
+## Functional Requirements
+
+### FR-1: CSV Upload Endpoint
+The system must provide an API endpoint that accepts a CSV file via multipart upload.
+
+### FR-2: Structural Validation
+The system must validate the CSV structure: correct headers, valid row format, no empty required fields.
+
+### FR-3: Business Validation
+The system must validate business rules: no duplicate email addresses (against existing users and within the file), valid data types, field length constraints.
+
+### FR-4: Transactional Import
+The system must import all valid users within a single database transaction. If any row fails business validation, the entire import is rolled back.
+
+### FR-5: Error Report Generation
+The system must generate a CSV error report containing: row number, field name, error type, and error message for every validation failure.
+
+### FR-6: Error Report Download
+The error report must be available for download via a URL returned in the API response. The report must be available for at least 24 hours.
+
+## Non-Functional Requirements
+
+### NFR-1: File Size
+The system must support CSV files up to 10MB in size.
+
+### NFR-2: Performance
+Import of a 10,000-row file must complete within 120 seconds.
+
+### NFR-3: Security
+Uploaded files must not be persisted beyond processing. Error reports must be accessible only to the user who initiated the import.
+
+## Constraints
+
+- Synchronous processing only — no background job queue in this iteration.
+- Must use the existing `users` database table.
+- No new external service dependencies.
+
+## Assumptions
+
+- CSV files use UTF-8 encoding with comma delimiters.
+- Required columns: `email`, `first_name`, `last_name`. Optional: `role`, `department`, `phone`.
+- The `csv-parse` library is available in the project.
+
+## Edge Cases
+
+| Edge Case | Expected Behavior |
+|---|---|
+| Empty file (headers only, no data rows) | Reject with clear error: "No data rows found" |
+| Missing required headers | Reject with error listing missing headers |
+| Duplicate emails within the file | Reject entire file, error report shows all duplicate rows |
+| Duplicate email against existing user | Reject entire file, error report shows conflicting rows |
+| File exceeds 10MB | Reject before parsing with "File too large" error |
+| Malformed CSV (unclosed quotes, wrong delimiter) | Reject with structural validation error |
+| All rows valid | Import all rows, return success with count |
+| Mixed valid and invalid rows | Reject entire file, return error report |
+
+## Acceptance Criteria
+
+- [x] CSV file can be uploaded via API endpoint
+- [x] Structural validation catches malformed files
+- [x] Business validation catches duplicates and invalid data
+- [x] Successful import creates all users in a single transaction
+- [x] Failed validation rolls back any partial changes
+- [x] Error report is downloadable as CSV with row-level detail
+- [x] Files up to 10MB are supported
+- [x] Import of 10,000 rows completes within 120 seconds
+
+## Open Questions
+
+1. ~~Should the import endpoint require a specific admin role, or is any authenticated user allowed?~~ *Resolved: admin role required.*
+2. ~~What happens if the server restarts during an import?~~ *Answer: transaction rolls back automatically.*

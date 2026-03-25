@@ -1,0 +1,31 @@
+{
+  "feature_name": "bulk-user-import",
+  "mode": "manual",
+  "current_phase": "implementation",
+  "current_state": "IMPLEMENTATION_IN_PROGRESS",
+  "approved_phases": [
+    "idea",
+    "spec",
+    "design",
+    "plan",
+    "tasks"
+  ],
+  "pending_approval": null,
+  "worker_count": 2,
+  "validator_count": 1,
+  "token_strategy": "normal",
+  "rework_history": [],
+  "open_issues": [
+    "Need to confirm maximum CSV file size limit with infrastructure team"
+  ],
+  "registry_versions": {
+    "idea": "v1",
+    "spec": "v1",
+    "design": "v1",
+    "plan": "v1",
+    "tasks": "v1"
+  },
+  "last_updated_by": "work-manager-agent",
+  "last_updated_at": "2026-03-25T10:30:00Z",
+  "created_at": "2026-03-25T08:00:00Z"
+}
