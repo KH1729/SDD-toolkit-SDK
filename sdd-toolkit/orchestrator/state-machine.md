@@ -70,7 +70,7 @@ After resolution by the human developer, execution returns to the prior state.
 | `TASKS_APPROVED` | Tasks approved, workers may begin | → `IMPLEMENTATION_IN_PROGRESS` |
 | `IMPLEMENTATION_IN_PROGRESS` | Workers are executing tasks | → `WAITING_FOR_HUMAN_IMPLEMENTATION_APPROVAL` |
 | `WAITING_FOR_HUMAN_IMPLEMENTATION_APPROVAL` | Paused. Human reviews implementation. | → `IMPLEMENTATION_COMPLETE` (approve) / → `IMPLEMENTATION_IN_PROGRESS` (rework) |
-| `IMPLEMENTATION_COMPLETE` | All tasks done and approved | → `VALIDATION_COMPLETE` |
+| `IMPLEMENTATION_COMPLETE` | All tasks done and approved | → `VALIDATION_IN_PROGRESS` |
 | `VALIDATION_IN_PROGRESS` | Validation agent is actively evaluating implementation | → `VALIDATION_REVIEW_REQUIRED` |
 | `VALIDATION_REVIEW_REQUIRED` | Validation findings are ready for review | → `WAITING_FOR_HUMAN_FINAL_DECISION` |
 | `WAITING_FOR_HUMAN_FINAL_DECISION` | Paused. Human makes final call. | → `DONE` (approve) / → any prior state (rework) |
