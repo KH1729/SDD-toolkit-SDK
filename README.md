@@ -10,6 +10,30 @@ SDD Toolkit enforces a disciplined development flow where every feature moves th
 
 Each phase produces a draft artifact, a summary, and a handoff. Only after explicit human approval is the artifact versioned in the registry and the toolkit allowed to move to the next phase.
 
+## Quick Start
+
+Run the initializer to set up any project with SDD Toolkit:
+
+```bash
+# From this repo — initialize a target project
+./init.sh /path/to/your/project
+
+# Or initialize the current directory
+./init.sh
+```
+
+This creates:
+
+- `.cursor/rules/` — 11 Cursor rule files that give the AI agent full knowledge of the SDD workflow, agent roles, governance, and commands
+- `sdd/` — Runtime directories (templates, memory, workspace, registry)
+- `toolkit-config.yaml` — Central configuration
+
+After initialization, open your project in Cursor and start working:
+
+- **"Build feature: user-notifications — Add real-time notification system with email and push support"**
+- **"Build project: crm-platform — Build a CRM with contacts, deals, and reporting"**
+- **"Approve phase"** / **"Request rework: the spec is missing error handling for edge cases"**
+
 ## Core Principles
 
 1. **Human approval by default.** No phase transition occurs without explicit developer sign-off. Agents draft, recommend, and validate — they do not self-approve.
@@ -36,29 +60,7 @@ Each phase produces a draft artifact, a summary, and a handoff. Only after expli
 | **Worker Agent(s)** | Implement assigned tasks within scoped boundaries |
 | **Validation Agent(s)** | Review artifacts and implementation against spec and rules |
 
-The toolkit activates only the minimum set of roles needed for the current phase. Worker and validation capacity may scale based on complexity, token budget, and model capability, but role consolidation is preferred when it keeps the system lean.
-
-## Folder Structure
-
-```
-sdd-toolkit/
-├── commands/        # Executable command definitions
-├── agents/          # Agent role definitions and starter prompts
-├── rules/           # Governance and engineering rules
-├── templates/       # Reusable artifact templates
-├── orchestrator/    # Workflow, state machine, resource allocation
-├── memory/          # Shared execution memory (state, summaries, handoffs)
-├── registry/        # Versioned approved artifacts
-└── workspace/       # Active working area per feature
-```
-
-### Key Directories
-
-- **memory/** — Agents consult shared memory first — phase state, summaries, handoffs, prior decisions, and validation findings — and only load raw artifacts or code when needed and within scope.
-- **registry/** — Immutable versioned snapshots of approved artifacts. Once a phase is approved, its artifact is stored here (e.g., `registry/specs/my-feature/spec/v1.md`).
-- **workspace/** — Active working area. Contains the current draft of each artifact and implementation outputs (task board, worker assignments, code).
-
-## Main Commands
+## Commands
 
 | Command | Purpose |
 |---|---|
@@ -68,30 +70,69 @@ sdd-toolkit/
 | `request-rework` | Reject the current phase and request changes |
 | `validate-feature` | Run validation against a feature's artifacts |
 
+## What the Initializer Creates
+
+### Cursor Rules (`.cursor/rules/`)
+
+| Rule | Type | Purpose |
+|---|---|---|
+| `sdd-overview.mdc` | Always active | Compact workflow overview, folder layout, command reference |
+| `sdd-master-agent.mdc` | Agent-requested | Master Agent role, state machine, workflow definition |
+| `sdd-spec-agent.mdc` | Agent-requested | Spec Agent role and starter prompt |
+| `sdd-architecture-agent.mdc` | Agent-requested | Architecture Agent role and starter prompt |
+| `sdd-work-manager-agent.mdc` | Agent-requested | Work Manager role and starter prompt |
+| `sdd-worker-agent.mdc` | Agent-requested | Worker Agent role and starter prompt |
+| `sdd-validation-agent.mdc` | Agent-requested | Validation Agent role and validation rules |
+| `sdd-governance.mdc` | Agent-requested | Workflow, approval, engineering, architecture rules |
+| `sdd-token-efficiency.mdc` | Agent-requested | Token optimization and resource allocation |
+| `sdd-escalation.mdc` | Agent-requested | Escalation policy and triggers |
+| `sdd-commands.mdc` | Agent-requested | Command definitions with routing hints |
+
+Only the overview rule is always loaded. All other rules are pulled in by the AI agent on demand based on the current task, keeping token usage low.
+
+### Runtime Directories (`sdd/`)
+
+```
+sdd/
+  templates/       — Reusable artifact templates (idea, spec, design, plan, tasks, validation, handoff, summary)
+  memory/          — Shared execution memory
+    feature-state/ — Per-feature state JSON files
+    summaries/     — Phase summaries
+    handoffs/      — Agent-to-agent handoff documents
+    decisions/     — Decision log
+  workspace/       — Active working area per feature
+  registry/        — Versioned approved artifacts
+```
+
+### Configuration (`toolkit-config.yaml`)
+
+Controls execution mode (manual/guided/delegated), phase flow, token budgets, worker/validator scaling, and artifact paths.
+
 ## Default Mode
 
 The toolkit operates in **manual** mode by default. Every phase transition requires explicit human approval. To enable more autonomous execution, change the mode in `toolkit-config.yaml`.
 
-## Getting Started
+## Customization
 
-1. Copy or fork this toolkit into your project.
-2. Review `toolkit-config.yaml` and adjust settings if needed.
-3. Use `build-feature` to start the pipeline for a new feature.
-4. Review and approve each phase as the agents produce artifacts.
-5. Approved artifacts are versioned in the registry automatically.
+After running `init.sh`, you can customize:
 
-## Skills
+- **`toolkit-config.yaml`** — Change the default mode, adjust worker/validator limits, set token budgets
+- **`.cursor/rules/*.mdc`** — Edit any rule to adjust agent behavior, add project-specific constraints, or change governance
+- **`sdd/templates/`** — Modify artifact templates to fit your project's conventions
 
-The toolkit exposes its core workflow operations as skills.
+## Repository Structure
 
-Available skills:
+This repository is the **source** for the SDD Toolkit. The `init.sh` script is the primary output — it embeds all rules, templates, and configuration into a single portable initializer.
 
-- `build-feature`
-- `build-project`
-- `request-rework`
-- `validate-feature`
-
-Each skill is defined under:
-
-```text
-skills/<skill-name>/SKILL.md
+```
+SDD-toolkit-SDK/
+  init.sh              — The initializer script (run this)
+  README.md            — This file
+  agents/              — Source: agent role definitions
+  commands/            — Source: command specifications
+  rules/              — Source: governance rules
+  orchestrator/        — Source: workflow, state machine, escalation
+  skills/              — Source: skill definitions
+  templates/           — Source: artifact templates
+  toolkit-config.yaml  — Source: default configuration
+```
