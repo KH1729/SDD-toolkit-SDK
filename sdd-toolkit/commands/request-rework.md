@@ -1,3 +1,5 @@
+> This command is implemented as the `request-rework` skill in `skills/request-rework/SKILL.md`.
+> This file remains the human-readable command reference.
 # Command: request-rework
 
 ## Purpose

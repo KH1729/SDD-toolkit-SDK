@@ -1,3 +1,5 @@
+> This command is implemented as the `build-feature` skill in `skills/build-feature/SKILL.md`.
+> This file remains the human-readable command reference.
 # Command: build-feature
 
 ## Purpose

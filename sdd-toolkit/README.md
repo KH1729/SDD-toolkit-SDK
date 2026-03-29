@@ -79,3 +79,19 @@ The toolkit operates in **manual** mode by default. Every phase transition requi
 3. Use `build-feature` to start the pipeline for a new feature.
 4. Review and approve each phase as the agents produce artifacts.
 5. Approved artifacts are versioned in the registry automatically.
+
+## Skills
+
+The toolkit exposes its core workflow operations as skills.
+
+Available skills:
+
+- `build-feature`
+- `build-project`
+- `request-rework`
+- `validate-feature`
+
+Each skill is defined under:
+
+```text
+skills/<skill-name>/SKILL.md

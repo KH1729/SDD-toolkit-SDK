@@ -1,3 +1,5 @@
+> This command is implemented as the `build-project` skill in `skills/build-project/SKILL.md`.
+> This file remains the human-readable command reference.
 # Command: build-project
 
 ## Purpose

@@ -1,3 +1,5 @@
+> This command is implemented as the `validate-feature` skill in `skills/validate-feature/SKILL.md`.
+> This file remains the human-readable command reference.
 # Command: validate-feature
 
 ## Purpose
