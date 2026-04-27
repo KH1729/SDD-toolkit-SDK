@@ -6,6 +6,12 @@ The required flow is:
 
 **Idea → Spec → Design → Plan → Tasks → Implementation → Validation**
 
+## Design and implementation separation
+
+**Gate chain:** Implementation MUST NOT start until **Design**, **Plan**, and **Tasks** are each approved (per mode). Design fixes the technical shape; Plan and Tasks turn it into executable work; only then do Worker Agents produce implementation outputs.
+
+**When code disproves the design:** Do not silently extend scope or rewrite contracts. Route through **Rework Routing** (R-WF-05): return to the appropriate draft phase (often Design or Tasks), invalidate affected downstream artifacts, and pass the approval gate again.
+
 ## Rules
 
 ### R-WF-01: No Phase Skipping
@@ -35,3 +41,6 @@ If a workflow is interrupted, it must be resumable from the last known state. Fe
 
 ### R-WF-08: Single Active Phase
 Only one phase may be active per feature at a time. No parallel phase execution within a single feature.
+
+### R-WF-09: Design–implementation gate
+No implementation phase work (code, tests, or implementation outputs) may begin until **Tasks** are approved. If implementation or validation shows the approved design or tasks are wrong or incomplete, trigger rework per R-WF-05 rather than bypassing gates.

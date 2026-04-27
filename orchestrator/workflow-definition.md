@@ -10,6 +10,11 @@ Transitions between phases must be explicit. No implicit or automatic transition
 Every feature must pass through this flow in order. No phase may be skipped or reordered.
 Transitions between phases must be explicit. No implicit or automatic transitions are allowed without satisfying phase requirements and approval conditions.
 
+## Terminology: Workflow phases vs plan work phases
+
+- **Workflow phases** are the seven pipeline steps above (Idea through Validation). They apply once per feature, in order, with explicit human gates (per approval mode).
+- **Plan work phases** are ordered slices inside the **Plan** artifact (`plan.md`): how the Work Manager breaks down execution after design is approved. They are **not** extra workflow phases and never replace **Design**, **Plan**, **Tasks**, or **Implementation**.
+
 ## Phase Requirements
 
 Each phase must emit **four valid outputs** before advancing:
@@ -88,6 +93,8 @@ If a phase is rejected by the human developer:
 - The workflow returns to the corresponding draft phase
 - Only the rejected concerns should be addressed (avoid full rework unless required)
 - Downstream phases are invalidated if their inputs are affected
+
+If **implementation** or **validation** reveals that the approved **design** or **tasks** are wrong or insufficient, treat that as a rework trigger: return to **Design** or **Tasks** (or another appropriate draft phase), invalidate affected downstream artifacts, and re-approve—do not change interfaces or scope without going through the gate.
 
 After rework, the phase must go through the same approval gate again.
 

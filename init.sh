@@ -320,6 +320,11 @@ Rework can target any previous state. When rework rolls back past an approved ph
 
 # Workflow Definition
 
+## Terminology: Workflow phases vs plan work phases
+
+- **Workflow phases:** Idea, Spec, Design, Plan, Tasks, Implementation, Validation — one ordered pipeline per feature with explicit human gates (per approval mode).
+- **Plan work phases:** Ordered slices inside `plan.md` for execution after design is approved. They are **not** additional workflow phases and never replace Design, Plan, Tasks, or Implementation.
+
 ## Phase Requirements
 
 Each phase must emit four valid outputs before advancing:
@@ -348,6 +353,8 @@ A phase is considered complete only if all four required outputs are present, th
 ## Rework Behavior
 
 If a phase is rejected: the workflow returns to the draft state, only rejected concerns are addressed, and downstream phases are invalidated if inputs changed. The phase must pass the same approval gate again.
+
+If **implementation** or **validation** shows the approved **design** or **tasks** are wrong or insufficient, return to **Design** or **Tasks** (or the appropriate draft phase), invalidate affected downstream artifacts, and re-approve — do not change interfaces or scope without a gate.
 
 ## Approval Modes
 
@@ -879,6 +886,12 @@ alwaysApply: false
 
 **Idea → Spec → Design → Plan → Tasks → Implementation → Validation**
 
+### Design and implementation separation
+
+**Gate chain:** Implementation MUST NOT start until **Design**, **Plan**, and **Tasks** are each approved (per mode). Design fixes the technical shape; Plan and Tasks turn it into executable work; only then do Worker Agents produce implementation outputs.
+
+**When code disproves the design:** Do not silently extend scope or rewrite contracts. Route through **R-WF-05**: return to the appropriate draft phase (often Design or Tasks), invalidate affected downstream artifacts, and pass the approval gate again.
+
 ### R-WF-01: No Phase Skipping
 Every feature must pass through every phase in order. No phase may be skipped, even if it seems trivial.
 
@@ -906,6 +919,9 @@ If a workflow is interrupted, it must be resumable from the last known state. Fe
 
 ### R-WF-08: Single Active Phase
 Only one phase may be active per feature at a time. No parallel phase execution within a single feature.
+
+### R-WF-09: Design–implementation gate
+No implementation phase work (code, tests, or implementation outputs) may begin until **Tasks** are approved. If implementation or validation shows the approved design or tasks are wrong or incomplete, trigger rework per R-WF-05 rather than bypassing gates.
 
 ---
 

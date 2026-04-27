@@ -1,5 +1,11 @@
 # Plan: {{title}}
 
+This artifact is produced in workflow phase **Plan**, after **Design** is approved. Sections below labeled **Work Phases** are execution slices inside this document—not the toolkit workflow phases (Idea → Spec → Design → Plan → Tasks → Implementation → Validation).
+
+**Design complete (upstream gate):** Approved `design.md` defines interfaces, boundaries, and tradeoffs; Plan does not invent new architecture.
+
+**Task-ready (this plan):** Each work phase maps to the approved design, has clear goals and dependencies, and can be broken into tasks without guessing structure.
+
 ## Execution Strategy
 
 {{How will this feature be implemented? Sequential tasks? Parallel workstreams? How many workers?}}
@@ -9,6 +15,8 @@
 - Estimated validators: 
 
 ## Work Phases
+
+Ordered **execution** chunks for this feature (plan work phases). Do not confuse with workflow phase **Implementation**—that phase runs later, driven by approved `tasks.md`.
 
 {{Break the implementation into ordered phases. Each phase should be independently completable.}}
 
